@@ -4,3 +4,7 @@ members = [
 ]
 
 resolver = "2"
+
+[workspace.dependencies]
+clap = { version = "4", features = ["derive"] }
+quick-js = { version = "0.4" }
