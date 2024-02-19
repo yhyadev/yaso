@@ -1,10 +1,8 @@
-[workspace]
-members = [
-    "core"
-]
+[package]
+name = "yaso"
+version = "0.1.0"
+edition = "2021"
 
-resolver = "2"
-
-[workspace.dependencies]
+[dependencies]
 clap = { version = "4", features = ["derive"] }
-quick-js = { version = "0.4" }
+rquickjs = { version = "0.5", features = ["bindgen", "full", "rust-alloc"] }
