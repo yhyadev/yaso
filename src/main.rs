@@ -18,6 +18,8 @@ pub fn main() {
 
             let vm = VirtualMachine::new();
 
+            vm.init();
+
             vm.run_module(&file_path);
         }
     };
