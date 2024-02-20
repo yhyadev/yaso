@@ -1,16 +1,16 @@
 use rquickjs::loader::{FileResolver, ScriptLoader};
-use rquickjs::{CatchResultExt, CaughtError, Context, Ctx, Module, Object, Runtime};
+use rquickjs::{AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Object};
 
 use std::path::Path;
 use std::process::exit;
 
 pub struct VirtualMachine {
-    context: Context,
-    runtime: Runtime,
+    context: AsyncContext,
+    runtime: AsyncRuntime,
 }
 
 impl VirtualMachine {
-    pub fn new() -> VirtualMachine {
+    pub async fn new() -> VirtualMachine {
         let resolver = (FileResolver::default()
             .with_path(".")
             .with_pattern("{}.cjs")
@@ -20,33 +20,46 @@ impl VirtualMachine {
             .with_extension("mjs")
             .with_extension("cjs"),);
 
-        let runtime = Runtime::new().expect("failed to create a Runtime");
+        let runtime = AsyncRuntime::new().expect("failed to create an AsyncRuntime");
 
-        runtime.set_loader(resolver, loader);
+        runtime.set_loader(resolver, loader).await;
 
-        let context = Context::full(&runtime).expect("failed to create a Context");
+        let context = AsyncContext::full(&runtime)
+            .await
+            .expect("failed to create an AsyncContext");
 
         VirtualMachine { context, runtime }
     }
 
-    pub fn init(&self) {
-        self.context.with(|ctx| {
-            crate::console::init(&ctx)
-                .catch(&ctx)
-                .unwrap_or_else(|err| VirtualMachine::print_error_and_exit(ctx, err));
-        })
+    pub async fn init(&self) {
+        self.context
+            .with(|ctx| {
+                crate::console::init(&ctx)
+                    .catch(&ctx)
+                    .unwrap_or_else(|err| VirtualMachine::print_error_and_exit(ctx, err));
+            })
+            .await
+    }
+
+    pub async fn idle(self) {
+        self.runtime.idle().await;
+
+        drop(self.context);
+        drop(self.runtime);
     }
 
     fn load_module<'js>(ctx: &Ctx<'js>, file_path: &Path) -> Result<Object<'js>, rquickjs::Error> {
         Module::import(ctx, file_path.to_string_lossy().to_string())
     }
 
-    pub fn run_module(&self, file_path: &Path) {
-        self.context.with(|ctx| {
-            VirtualMachine::load_module(&ctx, file_path)
-                .catch(&ctx)
-                .unwrap_or_else(|err| VirtualMachine::print_error_and_exit(ctx, err));
-        });
+    pub async fn run_module(&self, file_path: &Path) {
+        self.context
+            .with(|ctx| {
+                VirtualMachine::load_module(&ctx, file_path)
+                    .catch(&ctx)
+                    .unwrap_or_else(|err| VirtualMachine::print_error_and_exit(ctx, err));
+            })
+            .await
     }
 
     fn print_error_and_exit<'js>(ctx: Ctx<'js>, err: CaughtError<'js>) -> ! {

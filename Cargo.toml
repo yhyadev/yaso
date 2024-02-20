@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-rquickjs = { version = "0.5", features = ["bindgen", "full", "rust-alloc"] }
+rquickjs = { version = "0.5", features = ["bindgen", "full-async", "rust-alloc"] }
+tokio = { version = "1", features = ["full"] }

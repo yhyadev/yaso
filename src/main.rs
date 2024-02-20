@@ -5,7 +5,8 @@ use clap::Parser;
 
 use std::process::exit;
 
-pub fn main() {
+#[tokio::main]
+pub async fn main() {
     let args = Arguments::parse();
 
     match args.command {
@@ -16,11 +17,13 @@ pub fn main() {
                 exit(1);
             }
 
-            let vm = VirtualMachine::new();
+            let vm = VirtualMachine::new().await;
 
-            vm.init();
+            vm.init().await;
 
-            vm.run_module(&file_path);
+            vm.run_module(&file_path).await;
+
+            vm.idle().await;
         }
     };
 }
