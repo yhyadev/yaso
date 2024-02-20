@@ -37,10 +37,7 @@ impl VirtualMachine {
         })
     }
 
-    fn load_module<'js>(
-        ctx: &Ctx<'js>,
-        file_path: &Path,
-    ) -> Result<Object<'js>, rquickjs::Error> {
+    fn load_module<'js>(ctx: &Ctx<'js>, file_path: &Path) -> Result<Object<'js>, rquickjs::Error> {
         Module::import(ctx, file_path.to_string_lossy().to_string())
     }
 
@@ -56,11 +53,9 @@ impl VirtualMachine {
         let error_message = match err {
             CaughtError::Error(err) => err.to_string(),
 
-            CaughtError::Exception(exception) => {
-                crate::console::js_stringify(exception.as_value())
-                    .catch(&ctx)
-                    .unwrap_or_else(|err| VirtualMachine::print_error_and_exit(ctx, err))
-            }
+            CaughtError::Exception(exception) => crate::console::js_stringify(exception.as_value())
+                .catch(&ctx)
+                .unwrap_or_else(|err| VirtualMachine::print_error_and_exit(ctx, err)),
 
             CaughtError::Value(value) => crate::console::js_stringify(&value)
                 .catch(&ctx)

@@ -48,31 +48,31 @@ fn js_format(args: Rest<Value<'_>>) -> QuickJsResult<String> {
     Ok(result)
 }
 
-pub fn js_stringify(arg: &Value<'_>) -> QuickJsResult<String> {
+pub fn js_stringify(value: &Value<'_>) -> QuickJsResult<String> {
     let mut result = String::new();
 
-    match arg.type_of() {
-        Type::String => result = arg.as_string().unwrap().to_string()?,
+    match value.type_of() {
+        Type::String => result = value.as_string().unwrap().to_string()?,
 
-        Type::Bool => result = arg.as_bool().unwrap().to_string(),
+        Type::Bool => result = value.as_bool().unwrap().to_string(),
 
-        Type::Int => result = arg.as_int().unwrap().to_string(),
+        Type::Int => result = value.as_int().unwrap().to_string(),
 
         Type::BigInt => {
-            result = arg.as_big_int().unwrap().clone().to_i64()?.to_string();
+            result = value.as_big_int().unwrap().clone().to_i64()?.to_string();
 
             result.push('n');
-        },
+        }
 
-        Type::Float => result = arg.as_float().unwrap().to_string(),
+        Type::Float => result = value.as_float().unwrap().to_string(),
 
         Type::Array => {
-            let array = arg.as_array().unwrap();
+            let array = value.as_array().unwrap();
 
             result.push('[');
 
             for (i, value) in array.clone().into_iter().enumerate() {
-                result.push_str(js_stringify(&value?)?.as_str());
+                result.push_str(&js_stringify(&value?)?);
 
                 if i < array.len() - 1 {
                     result.push_str(", ");
@@ -83,7 +83,7 @@ pub fn js_stringify(arg: &Value<'_>) -> QuickJsResult<String> {
         }
 
         Type::Symbol => {
-            let description = arg.as_symbol().unwrap().description()?;
+            let description = value.as_symbol().unwrap().description()?;
             let description = description.to_string()?;
 
             result.push_str("Symbol(");
@@ -91,17 +91,22 @@ pub fn js_stringify(arg: &Value<'_>) -> QuickJsResult<String> {
             if description != "undefined" {
                 result.push_str(&description);
             }
-            
+
             result.push(')');
         }
 
         Type::Exception => {
-            let exception = arg.as_exception().unwrap();
+            let exception = value.as_exception().unwrap();
 
             if let Some(message) = exception.message() {
-                result.push_str(exception.get::<&str, String>("name")?.as_str());
+                let name: String = exception.get("name")?;
+
+                result.push_str(&name);
+
                 result.push_str(": ");
+
                 result.push_str(&message);
+
                 result.push('\n');
             }
 
@@ -113,8 +118,22 @@ pub fn js_stringify(arg: &Value<'_>) -> QuickJsResult<String> {
         // TODO: stringify these properly
         Type::Object => result.push_str("[Object]"),
         Type::Module => result.push_str("[Module]"),
-        Type::Function => result.push_str("[Function]"),
-        Type::Constructor => result.push_str("[Constructor]"),
+
+        Type::Constructor | Type::Function => {
+            result.push_str("[Function");
+
+            let name: String = value.as_function().unwrap().get("name")?;
+
+            if !name.is_empty() {
+                result.push_str(": ");
+
+                result.push_str(&name);
+
+                result.push(']');
+            } else {
+                result.push_str(" (anonymous)]");
+            }
+        }
 
         Type::Uninitialized | Type::Undefined => result.push_str("undefined"),
 
