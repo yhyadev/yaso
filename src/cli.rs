@@ -12,4 +12,7 @@ pub struct Arguments {
 pub enum Command {
     #[command(about = "Run a specific script")]
     Run { file_path: PathBuf },
+
+    #[command(about = "Start a REPL")]
+    REPL,
 }

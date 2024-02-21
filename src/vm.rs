@@ -1,6 +1,9 @@
 use rquickjs::loader::{FileResolver, ScriptLoader};
-use rquickjs::{AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Object};
+use rquickjs::{
+    AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Object, Value,
+};
 
+use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::exit;
 
@@ -41,6 +44,32 @@ impl VirtualMachine {
             .await
     }
 
+    pub async fn repl(&self) {
+        loop {
+            print!(">> ");
+            stdout().flush().unwrap();
+
+            let mut input = String::new();
+            stdin().read_line(&mut input).unwrap();
+
+            self.context
+                .with(|ctx| {
+                    match ctx.eval::<Value, String>(input).catch(&ctx) {
+                        Ok(value) => match crate::console::js_stringify(&value).catch(&ctx) {
+                            Ok(value) => {
+                                println!("{}", value);
+                            }
+
+                            Err(err) => VirtualMachine::print_error(ctx, err),
+                        },
+
+                        Err(err) => VirtualMachine::print_error(ctx, err),
+                    };
+                })
+                .await;
+        }
+    }
+
     pub async fn idle(self) {
         self.runtime.idle().await;
 
@@ -62,7 +91,7 @@ impl VirtualMachine {
             .await
     }
 
-    fn print_error_and_exit<'js>(ctx: Ctx<'js>, err: CaughtError<'js>) -> ! {
+    fn print_error<'js>(ctx: Ctx<'js>, err: CaughtError<'js>) {
         let error_message = match err {
             CaughtError::Error(err) => err.to_string(),
 
@@ -76,6 +105,10 @@ impl VirtualMachine {
         };
 
         eprintln!("{}", error_message);
+    }
+
+    fn print_error_and_exit<'js>(ctx: Ctx<'js>, err: CaughtError<'js>) -> ! {
+        VirtualMachine::print_error(ctx, err);
 
         exit(1);
     }
