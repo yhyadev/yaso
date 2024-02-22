@@ -1238,6 +1238,8 @@ name = "yaso"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "libc",
+ "once_cell",
  "rquickjs",
  "tokio",
 ]

@@ -1,4 +1,6 @@
-use rquickjs::loader::{FileResolver, ScriptLoader};
+use crate::os::OsModule;
+
+use rquickjs::loader::{BuiltinResolver, FileResolver, ModuleLoader, ScriptLoader};
 use rquickjs::{
     AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Object, Value,
 };
@@ -7,6 +9,26 @@ use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::exit;
 
+macro_rules! create_modules {
+    ($($name:expr => $module:expr),*) => {
+        pub fn create_module_instances() -> (BuiltinResolver, ModuleLoader) {
+            let mut builtin_resolver = BuiltinResolver::default();
+            let mut module_loader = ModuleLoader::default();
+
+            $(
+                builtin_resolver = builtin_resolver.with_module($name);
+                module_loader = module_loader.with_module($name, $module);
+            )*
+
+            (builtin_resolver, module_loader)
+        }
+    };
+}
+
+create_modules!(
+    "os" => OsModule
+);
+
 pub struct VirtualMachine {
     context: AsyncContext,
     runtime: AsyncRuntime,
@@ -14,14 +36,22 @@ pub struct VirtualMachine {
 
 impl VirtualMachine {
     pub async fn new() -> VirtualMachine {
-        let resolver = (FileResolver::default()
-            .with_path(".")
-            .with_pattern("{}.cjs")
-            .with_pattern("{}.mjs"),);
+        let (builtin_resolver, module_loader) = create_module_instances();
 
-        let loader = (ScriptLoader::default()
-            .with_extension("mjs")
-            .with_extension("cjs"),);
+        let resolver = (
+            builtin_resolver,
+            FileResolver::default()
+                .with_path(".")
+                .with_pattern("{}.cjs")
+                .with_pattern("{}.mjs"),
+        );
+
+        let loader = (
+            module_loader,
+            ScriptLoader::default()
+                .with_extension("mjs")
+                .with_extension("cjs"),
+        );
 
         let runtime = AsyncRuntime::new().expect("failed to create an AsyncRuntime");
 
