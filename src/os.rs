@@ -12,12 +12,12 @@ use std::ffi::{c_char, CStr};
 use std::io;
 
 #[derive(Debug, Clone)]
-pub struct Uname {
-    pub sysname: String,
-    pub nodename: String,
-    pub release: String,
-    pub version: String,
-    pub machine: String,
+struct Uname {
+    sysname: String,
+    nodename: String,
+    release: String,
+    version: String,
+    machine: String,
 }
 
 impl Uname {

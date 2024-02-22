@@ -1,4 +1,5 @@
 use crate::os::OsModule;
+use crate::path::PathModule;
 use crate::process::ProcessModule;
 
 use rquickjs::loader::{BuiltinResolver, FileResolver, ModuleLoader, ScriptLoader};
@@ -25,6 +26,7 @@ macro_rules! create_modules {
 
 create_modules!(
     "os" => OsModule,
+    "path" => PathModule,
     "process" => ProcessModule
 );
 
