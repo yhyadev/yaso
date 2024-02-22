@@ -25,15 +25,5 @@ pub async fn main() {
 
             vm.idle().await;
         }
-
-        Command::REPL => {
-            let vm = VirtualMachine::new().await;
-
-            vm.init().await;
-
-            vm.repl().await;
-
-            vm.idle().await;
-        }
     };
 }

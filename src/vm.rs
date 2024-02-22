@@ -2,11 +2,8 @@ use crate::os::OsModule;
 use crate::process::ProcessModule;
 
 use rquickjs::loader::{BuiltinResolver, FileResolver, ModuleLoader, ScriptLoader};
-use rquickjs::{
-    AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Object, Value,
-};
+use rquickjs::{AsyncContext, AsyncRuntime, CatchResultExt, CaughtError, Ctx, Module, Object};
 
-use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::exit;
 
@@ -74,32 +71,6 @@ impl VirtualMachine {
                     .unwrap_or_else(|err| VirtualMachine::print_error_and_exit(ctx, err));
             })
             .await
-    }
-
-    pub async fn repl(&self) {
-        loop {
-            print!(">> ");
-            stdout().flush().unwrap();
-
-            let mut input = String::new();
-            stdin().read_line(&mut input).unwrap();
-
-            self.context
-                .with(|ctx| {
-                    match ctx.eval::<Value, String>(input).catch(&ctx) {
-                        Ok(value) => match crate::console::js_stringify(&value).catch(&ctx) {
-                            Ok(value) => {
-                                println!("{}", value);
-                            }
-
-                            Err(err) => VirtualMachine::print_error(ctx, err),
-                        },
-
-                        Err(err) => VirtualMachine::print_error(ctx, err),
-                    };
-                })
-                .await;
-        }
     }
 
     pub async fn idle(self) {
