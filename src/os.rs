@@ -89,6 +89,8 @@ impl ModuleDef for OsModule {
         declare.declare("release")?;
         declare.declare("version")?;
         declare.declare("machine")?;
+        declare.declare("arch")?;
+        declare.declare("platform")?;
         declare.declare("tmpdir")?;
         declare.declare("default")?;
 
@@ -101,6 +103,8 @@ impl ModuleDef for OsModule {
             default.set("release", Func::from(get_release))?;
             default.set("version", Func::from(get_version))?;
             default.set("machine", Func::from(get_machine))?;
+            default.set("arch", Func::from(crate::process::get_arch))?;
+            default.set("platform", Func::from(crate::process::get_platform))?;
             default.set("tmpdir", Func::from(get_tmp_dir))?;
 
             Ok(())

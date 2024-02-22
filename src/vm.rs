@@ -1,4 +1,5 @@
 use crate::os::OsModule;
+use crate::process::ProcessModule;
 
 use rquickjs::loader::{BuiltinResolver, FileResolver, ModuleLoader, ScriptLoader};
 use rquickjs::{
@@ -26,7 +27,8 @@ macro_rules! create_modules {
 }
 
 create_modules!(
-    "os" => OsModule
+    "os" => OsModule,
+    "process" => ProcessModule
 );
 
 pub struct VirtualMachine {
