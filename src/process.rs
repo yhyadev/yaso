@@ -12,12 +12,10 @@ pub fn cwd() -> String {
 }
 
 pub fn get_arch() -> &'static str {
-    // Not equivilant to node.js, But I don't care
     std::env::consts::ARCH
 }
 
 pub fn get_platform() -> &'static str {
-    // Not equivilant to node.js, But I don't care
     std::env::consts::OS
 }
 
