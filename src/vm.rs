@@ -1,3 +1,4 @@
+use crate::fs::FsModule;
 use crate::os::OsModule;
 use crate::path::PathModule;
 use crate::process::ProcessModule;
@@ -25,6 +26,7 @@ macro_rules! create_modules {
 }
 
 create_modules!(
+    "fs" => FsModule,
     "os" => OsModule,
     "path" => PathModule,
     "process" => ProcessModule
