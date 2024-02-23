@@ -143,10 +143,6 @@ impl ModuleDef for PathModule {
                     let mut final_path = PathBuf::from(crate::process::cwd());
 
                     for path in paths.iter() {
-                        if PathBuf::from(path).is_absolute() {
-                            final_path.clear();
-                        }
-
                         final_path.push(path);
                     }
 
@@ -160,7 +156,7 @@ impl ModuleDef for PathModule {
                     let mut final_path = PathBuf::new();
 
                     for path in paths.iter() {
-                        final_path.push(path);
+                        final_path.push(path.trim_start_matches('/'));
                     }
 
                     final_path.to_string_lossy().to_string()
@@ -196,7 +192,7 @@ impl ModuleDef for PathModule {
             default.set(
                 "extname",
                 Func::from(|path: String| match PathBuf::from(path).extension() {
-                    Some(extension) => String::from(".") + &extension.to_string_lossy().to_string(),
+                    Some(extension) => String::from(".") + &extension.to_string_lossy(),
 
                     None => String::new(),
                 }),

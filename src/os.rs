@@ -14,7 +14,6 @@ use std::io;
 #[derive(Debug, Clone)]
 struct Uname {
     sysname: String,
-    nodename: String,
     release: String,
     version: String,
     machine: String,
@@ -42,7 +41,6 @@ impl From<utsname> for Uname {
 
         Uname {
             sysname: to_cstr(&x.sysname).to_string_lossy().to_string(),
-            nodename: to_cstr(&x.nodename).to_string_lossy().to_string(),
             release: to_cstr(&x.release).to_string_lossy().to_string(),
             version: to_cstr(&x.version).to_string_lossy().to_string(),
             machine: to_cstr(&x.machine).to_string_lossy().to_string(),

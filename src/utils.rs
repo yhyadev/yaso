@@ -1,5 +1,5 @@
 use rquickjs::module::Exports;
-use rquickjs::{Ctx, Object, Result as QuickJsResult};
+use rquickjs::{Ctx, Object, Result as QuickJsResult, Value};
 
 pub fn export_default<'js, F>(ctx: &Ctx<'js>, exports: &mut Exports<'js>, f: F) -> QuickJsResult<()>
 where
@@ -11,7 +11,7 @@ where
 
     for name in default.keys::<String>() {
         let name = name?;
-        let value = default.get(name.clone())?;
+        let value: Value = default.get(name.clone())?;
 
         exports.export(name, value)?;
     }
