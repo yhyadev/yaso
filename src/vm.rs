@@ -96,7 +96,7 @@ impl VirtualMachine {
             .await
     }
 
-    fn print_error<'js>(ctx: Ctx<'js>, err: CaughtError<'js>) {
+    fn print_error_and_exit<'js>(ctx: Ctx<'js>, err: CaughtError<'js>) -> ! {
         let error_message = match err {
             CaughtError::Error(err) => err.to_string(),
 
@@ -110,10 +110,6 @@ impl VirtualMachine {
         };
 
         eprintln!("{}", error_message);
-    }
-
-    fn print_error_and_exit<'js>(ctx: Ctx<'js>, err: CaughtError<'js>) -> ! {
-        VirtualMachine::print_error(ctx, err);
 
         exit(1);
     }
