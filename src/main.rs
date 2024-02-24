@@ -1,4 +1,4 @@
-use yaso::cli::{Arguments, Command};
+use yaso::cli::{Command, CLI};
 use yaso::vm::VirtualMachine;
 
 use clap::Parser;
@@ -7,10 +7,10 @@ use std::process::exit;
 
 #[tokio::main]
 pub async fn main() {
-    let args = Arguments::parse();
+    let cli = CLI::parse();
 
-    match args.command {
-        Command::Run { file_path } => {
+    match cli.command {
+        Command::Run { file_path, .. } => {
             if !file_path.exists() {
                 eprintln!("{}: No such file or directory", file_path.display());
 

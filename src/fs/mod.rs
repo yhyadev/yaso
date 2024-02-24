@@ -6,7 +6,7 @@ use rquickjs::function::{Async, Func, Opt};
 use rquickjs::module::{Declarations, Exports, ModuleDef};
 use rquickjs::{Class, Ctx, Exception, Result as QuickJsResult};
 
-async fn open(ctx: Ctx<'_>, path: String, flags: Opt<String>) -> QuickJsResult<file::File>{
+async fn open(ctx: Ctx<'_>, path: String, flags: Opt<String>) -> QuickJsResult<file::File> {
     let flags = flags.0.unwrap_or(String::from("r"));
 
     let mut open_options = tokio::fs::OpenOptions::new();
@@ -44,7 +44,7 @@ async fn open(ctx: Ctx<'_>, path: String, flags: Opt<String>) -> QuickJsResult<f
     }
 }
 
-fn open_sync(ctx: Ctx<'_>, path: String, flags: Opt<String>) -> QuickJsResult<file::FileSync>{
+fn open_sync(ctx: Ctx<'_>, path: String, flags: Opt<String>) -> QuickJsResult<file::FileSync> {
     let flags = flags.0.unwrap_or(String::from("r"));
 
     let mut open_options = std::fs::OpenOptions::new();
